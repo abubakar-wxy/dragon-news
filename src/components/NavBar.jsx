@@ -4,10 +4,17 @@ import userIcon from "../assets/user.png";
 import { AuthContext } from "../provider/AuthProvider";
 
 const NavBar = () => {
-    const { user } = use(AuthContext);
+    const { user, logOut } = use(AuthContext);
 
     const handleLogOut = () => {
-        console.log("log out function called")
+        // console.log("log out function called")
+        logOut()
+            .then(() => {
+                // console.log("LogOut successfully");
+            })
+            .catch((error) => {
+                console.log(error)
+            });
     }
 
     return (
@@ -19,7 +26,11 @@ const NavBar = () => {
                 <NavLink to="/career">Career</NavLink>
             </div>
             <div className="login-btn flex gap-5">
-                <img className="w-12 rounded-full" src={userIcon} alt="" />
+                <img
+                    className="w-12 rounded-full"
+                    src={`${user ? user.photoURL : userIcon}`}
+                    alt=""
+                />
                 {user ? (
                     <button
                         onClick={handleLogOut}

@@ -1,28 +1,46 @@
-import React, { use } from "react";
-import { Link } from "react-router";
+import React, { use, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
 import { AuthContext } from "../provider/AuthProvider";
 
 const Register = () => {
-
-    const { createUser, setUser } = use(AuthContext);
+    const [nameError, setNameError] = useState('');
+    const { createUser, setUser, updateUser } = use(AuthContext);
+    const location = useLocation()
+    const navigate = useNavigate()
 
     const handleRegister = (e) => {
         e.preventDefault();
         const form = e.target
 
         const name = form.name.value
+        if (name.length < 5) {
+            setNameError("Name should be more then five Character")
+            return;
+        } else {
+            setNameError("");
+        }
         const photo = form.photo.value;
         const email = form.email.value
         const password = form.password.value
         createUser(email, password)
             .then((result) => {
                 const user = result.user;
-                setUser(user)
-                console.log(user);
+                updateUser({
+                    displayName: name,
+                    photoURL: photo,
+                })
+                    .then(() => {
+                        setUser({ ...user, displayName: name, photoURL: photo, });
+                        navigate(`${location.state ? location.state : "/"}`);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        setUser(user)
+                    });
             })
             .catch((error) => {
-                const errorMessage = error.message;
-                alert(errorMessage);
+                const errorCode = error.code;
+                setNameError(errorCode);
             });
     };
 
@@ -44,9 +62,9 @@ const Register = () => {
                             required
                         />
 
-                        {/* {nameError && (
+                        {nameError && (
                             <p className="text-xs text-error">{nameError}</p>
-                        )} */}
+                        )}
 
                         {/* Photo URl  */}
                         <label className="label">Photo URl </label>
